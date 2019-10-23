@@ -31,14 +31,18 @@ class PostController extends Controller
     // 创建逻辑
     public function store()
     {
-//        return;
         // 验证
         $this->validate(request(), [
             'title' => 'required|string|max:100|min:5',
             'content' => 'required|string|min:10'
         ]);
-        $post = Post::create(request(['title', 'content']));
 
+        // 逻辑
+        $user_id = 1;
+        $params = array_merge(request(['title', 'content']), compact('user_id'));
+        $post = Post::create($params);
+
+        // 渲染
         return redirect("/posts");
     }
 
