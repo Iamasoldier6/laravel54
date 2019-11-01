@@ -35,14 +35,36 @@ class UserController extends Controller
     }
 
     // 用户角色页面
-    public function role()
+    public function role(\App\AdminUser $user)
     {
-        return view('/admin/user/role');
+        $roles = \App\AdminRole::all();
+        $myRoles = $user->roles;
+
+        return view('/admin/user/role', compact('roles', 'myRoles', 'user'));
     }
 
     // 储存用户角色
-    public function storeRole()
+    public function storeRole(\App\AdminUser $user)
     {
+        $this->validate(request(), [
+            'roles' => 'required|array'
+        ]);
 
+        $roles = \App\AdminRole::findMany(request('roles'));
+        $myRoles = $user->roles;
+
+        // 要增加的
+        $addRoles = $roles->diff($myRoles);
+        foreach ($addRoles as $role) {
+            $user->assignRole($role);
+        }
+
+        // 要删除的
+        $deleteRoles = $myRoles->diff($roles);
+        foreach ($deleteRoles as $role) {
+            $user->deleteRole($role);
+        }
+
+        return back();
     }
 }
